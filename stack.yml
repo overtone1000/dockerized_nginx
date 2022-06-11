@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+
+#nginx
+  app:
+    networks:
+      - bridge_net
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8000-8999:8000-8999" #for local access; see nginx config files
+    image: nginx_trm
+    volumes:
+      - cron:/etc/cron.d #allow changes to the cron tab to persist!
+      - nginx:/etc/nginx/sites-available/ #certbot will make changes that need to persist
+      - static_content:/var/www/html/ #allow static content to persist
+      - certbot:/etc/letsencrypt/ #certbot will make changes that need to persist
+      - certbot_var:/var/lib/letsencrypt/ #certbot will make changes that need to persist  
+    environment:
+      CERTBOT_WEBHOOK_PRE: "$CERTBOT_WEBHOOK_PRE" #webhook for certbot pre-renewal
+      CERTBOT_WEBHOOK_POST: "$CERTBOT_WEBHOOK_POST" #webhook for certbot post-renewal
+
+volumes:
+  cron:
+    name: nginx_trm_cron
+  nginx:
+    name: nginx_trm_nginxconfig
+  static_content:
+    name: nginx_trm_static_content
+  certbot:
+    name: nginx_trm_certbot
+  certbot_var:
+    name: nginx_trm_certbotvar
+      
+networks:
+  bridge_net:
+    name: nginx_bridge #can't use the default bridge! DNS using container/service names doesn't work on that.
+    driver: overlay
+    attachable: true #allow compose and plain docker containers to attach to this network
