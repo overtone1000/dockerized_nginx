@@ -9,7 +9,7 @@ services:
       - "80:80"
       - "443:443"
       - "8000-8999:8000-8999" #for local access; see nginx config files
-    image: nginx_trm
+    image: docker.io/overtone1000/nginx
     volumes:
       - cron:/etc/cron.d #allow changes to the cron tab to persist!
       - nginx:/etc/nginx/sites-available/ #certbot will make changes that need to persist
