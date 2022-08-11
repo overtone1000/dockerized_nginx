@@ -1,8 +1,7 @@
 version: '3.8'
 services:
 
-#nginx
-  app:
+  nginx:
     networks:
       - bridge_net
     ports:
