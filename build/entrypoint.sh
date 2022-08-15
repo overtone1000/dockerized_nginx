@@ -17,8 +17,10 @@ echo "Starting php$PHP_VERSION-fpm in background"
 service php$PHP_VERSION-fpm start
 service --status-all
 
-echo "Starting nginx in foreground"
+echo "nginx test"
 nginx -t
+
+echo "Starting nginx in foreground"
 nginx -g "daemon off;"
 
 function success()
