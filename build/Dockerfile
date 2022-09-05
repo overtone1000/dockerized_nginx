@@ -2,6 +2,8 @@ FROM ubuntu:latest
 
 #Install PHP-FPM and create the pertinent socket link; service is started in entrypoint.sh
 ENV PHP_VERSION=7.4
+#was 7.4
+#did "8.1" for a bit, was that a fluke?
 ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -111,8 +113,7 @@ COPY php_ini/ $PHP_INI_DIR/
 RUN chmod 0644 /etc/cron.d/*
 COPY certbot_hooks /etc/letsencrypt/renewal-hooks
 RUN chmod -R 755 /etc/letsencrypt/renewal-hooks
-#
-#
+
 #Final cleanup
 RUN rm -dr /tmp/*
 RUN apt-get remove -y make build-essential

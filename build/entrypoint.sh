@@ -10,6 +10,8 @@ trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 echo "Allowing processes to start"
 sleep 5
 
+echo "0 * * * * root wget --quiet --tries=1 --spider -o /dev/null $HEALTHCHECK_URL" > /etc/cron.d/health
+
 echo "Starting cron"
 service cron start
 
