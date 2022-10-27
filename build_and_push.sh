@@ -9,8 +9,8 @@ TAG=latest
 
 FULLTAG=$REGISTRY/$UNAME/$IMAGE_NAME:$TAG
 
-echo "Enter docker password for user $UNAME"
-docker login -u $UNAME $REGISTRY
+#echo "Enter docker password for user $UNAME"
+#docker login -u $UNAME $REGISTRY
 docker build -t $IMAGE_NAME:$TAG ./build
 docker image tag $IMAGE_NAME:$TAG $FULLTAG
 docker push $FULLTAG

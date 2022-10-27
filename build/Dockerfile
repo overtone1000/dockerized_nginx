@@ -29,10 +29,10 @@ ENV TZ="US/Los_Angeles"
 #
 #
 #Install third party libraries (predownloaded)
-ARG OPENSSL=openssl-1.1.1g
-ARG ZLIB=zlib-1.2.11
-ARG PCRE=pcre-8.45
-ARG NGINX=nginx-1.19.0
+ARG OPENSSL=openssl-3.0.5
+ARG ZLIB=zlib-1.2.13
+ARG PCRE=pcre2-10.40
+ARG NGINX=nginx-1.23.2
 
 COPY downloads/ /tmp/
 
@@ -113,6 +113,7 @@ COPY php_ini/ $PHP_INI_DIR/
 RUN chmod 0644 /etc/cron.d/*
 COPY certbot_hooks /etc/letsencrypt/renewal-hooks
 RUN chmod -R 755 /etc/letsencrypt/renewal-hooks
+COPY ./cron/certbot /etc/cron.d/certbot
 
 #Final cleanup
 RUN rm -dr /tmp/*
