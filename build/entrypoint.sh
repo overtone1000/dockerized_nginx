@@ -12,6 +12,8 @@ sleep 5
 
 echo "0 * * * * root wget --quiet --tries=1 --spider -o /dev/null $HEALTHCHECK_URL" > /etc/cron.d/health
 
+echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && sudo certbot renew -q" | sudo tee -a /etc/cron.d/certbot > /dev/null
+
 echo "Starting cron"
 service cron start
 
