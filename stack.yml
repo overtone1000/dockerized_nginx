@@ -7,8 +7,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8000-8999:8000-8999" #for local access; see nginx config files
-    image: docker.io/overtone1000/nginx
+    image: nginx:test #docker.io/overtone1000/nginx
     volumes:
       - cron:/etc/cron.d #allow changes to the cron tab to persist!
       - nginx:/etc/nginx/sites-available/ #certbot will make changes that need to persist
@@ -19,6 +18,10 @@ services:
       CERTBOT_WEBHOOK_PRE: "$CERTBOT_WEBHOOK_PRE" #webhook for certbot pre-renewal
       CERTBOT_WEBHOOK_POST: "$CERTBOT_WEBHOOK_POST" #webhook for certbot post-renewal
       HEALTHCHECK_URL: "$HEALTHCHECK_URL" #webhook for cron heartbeat
+  php:
+    image: php:fpm-alpine
+    networks:
+      - bridge_net
 
 volumes:
   cron:

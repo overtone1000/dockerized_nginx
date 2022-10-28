@@ -1,15 +1,14 @@
-FROM alpine:3 AS build
+FROM ubuntu:latest AS build
 
-###
-### nginx
-###
+ENV DEBIAN_FRONTEND="noninteractive"
 
+#
+#
 # Install necessary packages
-#see pkgs.alpinelinux.org
-RUN apk add --no-cache make
-RUN apk add --no-cache g++
-RUN apk add --no-cache perl
-RUN apk add --no-cache linux-headers
+RUN apt-get -y update && apt-get -y install \
+    make \
+    #needed for PCRE
+    build-essential sudo    
 
 #
 #
@@ -23,6 +22,8 @@ COPY downloads/ /tmp/
 
 #Unpack
 WORKDIR /tmp/
+RUN dir
+RUN dir /tmp
 RUN tar -zxf $OPENSSL.tar.gz
 RUN tar -zxf $ZLIB.tar.gz
 RUN tar -zxf $PCRE.tar.gz
@@ -43,16 +44,9 @@ RUN ./configure \
 --with-mail=dynamic
 RUN make
 RUN make install
+ENV PATH="/etc/nginx:${PATH}"
 
 WORKDIR /
-
-#Cleanup
-RUN rm -fr /tmp/*
-#RUN apt-get remove -y make build-essential
-#RUN apt-get clean && rm -rf /var/lib/apt/lists/*;
-RUN apk del --no-cache make
-RUN apk del --no-cache g++
-RUN apk del --no-cache perl
 
 #
 #
@@ -64,17 +58,26 @@ RUN echo "Skipping rust compilation. This will cause failure if deploying to ARM
 #RUN rustc --version
 
 
-
-###
-### Certbot
-###
-
+#Install PHP-FPM and create the pertinent socket link; service is started in entrypoint.sh
+ENV PHP_VERSION=8.1
+#was 7.4
+#did "8.1" for a bit, was that a fluke?
+ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
+ENV TZ="US/Los_Angeles"
+RUN apt-get update && apt-get -y install php$PHP_VERSION php$PHP_VERSION-fpm \
 #Can't use snapd to install certbot. Need to run the script in the container then save the image.
-#RUN apt-get install -y snapd
-#Certbot (use the pip installation instructions instead of snapd!)
-RUN apk add --no-cache python3 
-    #python3-venv libaugeas0
-    
+    #RUN apt-get install -y snapd
+    #Certbot (use the pip installation instructions instead of snapd!)
+    python3 python3-venv libaugeas0 \
+    #For certbot
+    cron \
+    wget
+
+#
+#Create PHP symbolic link
+RUN ln -s /var/run/php/php$PHP_VERSION-fpm.sock /var/run/php/php-fpm.sock
+
+
 #
 #
 #Install certbot with pip
@@ -85,46 +88,12 @@ RUN /opt/certbot/bin/pip install certbot certbot-nginx
 RUN ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
 
-
-FROM scratch AS final
-COPY --from=build / /
-
-#Install PHP-FPM and create the pertinent socket link; service is started in entrypoint.sh
-ENV PHP_VERSION=81 
-ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
-#was 7.4
-#did "8.1" for a bit, was that a fluke?
-ENV PATH="/etc/nginx:${PATH}"
-ENV TZ="US/Los_Angeles"
-
-#For entrypoint
-RUN apk add --no-cache bash
-#RUN apk add --no-cache openrc 
-#Just run crond in the background, but php-fpm needs to be a service I guess
-
-#For nginx
-RUN apk add --no-cache php$PHP_VERSION php$PHP_VERSION-fpm php$PHP_VERSION-sockets
-    #php$PHP_VERSION-fpm
-
-#For certbot
-RUN apk add --no-cache apk-cron
-RUN apk add --no-cache wget
-
-#
-#Create PHP symbolic link
-# Don't do this anymore, just set fastcgi_pass to 127.0.0.1:9000
-#RUN echo iterate
-#RUN /usr/sbin/php-fpm81 --help
-#RUN cat /etc/php81/php-fpm.conf | grep listen
-#RUN ln -s /var/run/php/php$PHP_VERSION-fpm.sock /var/run/php/php-fpm.sock
-
 #
 #Create log files
 RUN mkdir /var/log/nginx
 RUN touch /var/log/nginx/access.log
 RUN touch /var/log/nginx/error.log
 RUN touch /var/log/nginx/stream.log
-RUN adduser -G www-data -D www-data
 RUN chown -R www-data:www-data /var/log/nginx && chmod -R 755 /var/log/nginx;
 
 #
@@ -142,14 +111,16 @@ COPY php_ini/ $PHP_INI_DIR/
 
 
 #Cron config
-ENV CRONDIR=/var/spool/cron/crontabs
+RUN chmod 0644 /etc/cron.d/*
 COPY certbot_hooks /etc/letsencrypt/renewal-hooks
 RUN chmod -R 755 /etc/letsencrypt/renewal-hooks
-COPY ./cron/certbot $CRONDIR/certbot
-RUN chmod 0644 /etc/crontabs/certbot
+COPY ./cron/certbot /etc/cron.d/certbot
 
+#Final cleanup
+RUN rm -dr /tmp/*
+RUN apt-get remove -y make build-essential
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*;
 
 WORKDIR /
 COPY entrypoint.sh entrypoint.sh
-
-ENTRYPOINT ["/bin/bash","entrypoint.sh"]
+ENTRYPOINT ["bash","entrypoint_ubuntu.sh"]

@@ -2,6 +2,11 @@
 
 set -e
 
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
+
 echo "Allowing processes to start"
 sleep 5
 
@@ -9,11 +14,11 @@ sleep 5
 #echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && sudo certbot renew -q" | sudo tee -a /etc/cron.d/certbot > /dev/null
 
 echo "Starting cron"
-crond -b -S -c $CRONDIR
+service cron start
 
-#echo "Starting php$PHP_VERSION-fpm in background"
-#rc-service php$PHP_VERSION-fpm start
-#rc-status
+echo "Starting php$PHP_VERSION-fpm in background"
+service php$PHP_VERSION-fpm start
+service --status-all
 
 echo "nginx test"
 nginx -t
