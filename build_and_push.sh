@@ -5,15 +5,16 @@ set -e
 REGISTRY=docker.io
 UNAME=overtone1000
 IMAGE_NAME=nginx
-TAG=$1
-
-if [ -z "$TAG"]; 
-then 
-echo "Please provide the tag as an argument."
-exit -1
-fi
+TAG="$1"
 
 FULLTAG=$REGISTRY/$UNAME/$IMAGE_NAME:$TAG
+
+if [ -z $TAG ]; then 
+    echo "Please provide the tag as an argument."
+    exit -1
+else
+    echo "Pushing to $FULLTAG"
+fi
 
 #echo "Enter docker password for user $UNAME"
 #docker login -u $UNAME $REGISTRY
