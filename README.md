@@ -9,3 +9,6 @@ wget https://www.openssl.org/source/openssl-3.0.5.tar.gz && \
 wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.40/pcre2-10.40.tar.gz && \
 wget https://zlib.net/zlib-1.2.13.tar.gz
 ```
+
+To deploy, `bash build_and_push.sh TAG`
+Tags are nginx-alpine-VERSION and nginx-ubuntu-VERSION

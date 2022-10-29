@@ -5,7 +5,13 @@ set -e
 REGISTRY=docker.io
 UNAME=overtone1000
 IMAGE_NAME=nginx
-TAG=latest
+TAG=$1
+
+if [ -z "$TAG"]; 
+then 
+echo "Please provide the tag as an argument."
+exit -1
+fi
 
 FULLTAG=$REGISTRY/$UNAME/$IMAGE_NAME:$TAG
 

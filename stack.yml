@@ -1,15 +1,14 @@
 version: '3.8'
 services:
 
-  app:
+  nginx:
+    image: overtone1000/nginx:alpine-1 #docker.io/overtone1000/nginx
     networks:
       - bridge_net
     ports:
       - "80:80"
       - "443:443"
-    image: nginx:test #docker.io/overtone1000/nginx
     volumes:
-      - cron:/etc/cron.d #allow changes to the cron tab to persist!
       - nginx:/etc/nginx/sites-available/ #certbot will make changes that need to persist
       - static_content:/var/www/html/ #allow static content to persist
       - certbot:/etc/letsencrypt/ #certbot will make changes that need to persist
@@ -18,8 +17,11 @@ services:
       CERTBOT_WEBHOOK_PRE: "$CERTBOT_WEBHOOK_PRE" #webhook for certbot pre-renewal
       CERTBOT_WEBHOOK_POST: "$CERTBOT_WEBHOOK_POST" #webhook for certbot post-renewal
       HEALTHCHECK_URL: "$HEALTHCHECK_URL" #webhook for cron heartbeat
+  
   php:
     image: php:fpm-alpine
+    volumes:
+      - static_content:/var/www/html/ #php has to be able to access the content? yes, confirmed
     networks:
       - bridge_net
 

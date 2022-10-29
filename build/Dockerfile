@@ -1,4 +1,6 @@
-FROM alpine:3 AS build
+FROM alpine:3 AS base
+
+FROM base AS build
 
 ###
 ### nginx
@@ -64,6 +66,16 @@ RUN echo "Skipping rust compilation. This will cause failure if deploying to ARM
 #RUN rustc --version
 
 
+FROM base AS final
+COPY --from=build / /
+
+#Install PHP-FPM and create the pertinent socket link; service is started in entrypoint.sh
+ENV PHP_VERSION=81 
+ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
+#was 7.4
+#did "8.1" for a bit, was that a fluke?
+ENV PATH="/etc/nginx:${PATH}"
+ENV TZ="US/Los_Angeles"
 
 ###
 ### Certbot
@@ -84,18 +96,6 @@ RUN /opt/certbot/bin/pip install cryptography
 RUN /opt/certbot/bin/pip install certbot certbot-nginx
 RUN ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
-
-
-FROM scratch AS final
-COPY --from=build / /
-
-#Install PHP-FPM and create the pertinent socket link; service is started in entrypoint.sh
-ENV PHP_VERSION=81 
-ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
-#was 7.4
-#did "8.1" for a bit, was that a fluke?
-ENV PATH="/etc/nginx:${PATH}"
-ENV TZ="US/Los_Angeles"
 
 #For entrypoint
 RUN apk add --no-cache bash
@@ -145,8 +145,8 @@ COPY php_ini/ $PHP_INI_DIR/
 ENV CRONDIR=/var/spool/cron/crontabs
 COPY certbot_hooks /etc/letsencrypt/renewal-hooks
 RUN chmod -R 755 /etc/letsencrypt/renewal-hooks
-COPY ./cron/certbot $CRONDIR/certbot
-RUN chmod 0644 /etc/crontabs/certbot
+COPY ./cron/root $CRONDIR/root
+RUN chmod 0644 $CRONDIR/root
 
 
 WORKDIR /
