@@ -1,5 +1,8 @@
-# Dockerized_nginx
-Custom dockerized nginx with openssl, pcre, zlib, and php. Cron runs alongside. Certbot is installed.
+# Container contents:
+- alpine base
+- nginx compiled with openssl, pcre, and zlib
+- certbot
+- cron (for certbot renewal)
 
 To build, download the .tar.gz files for nginx, openssl, pcre, and zlib to the `downloads` directory.
 
