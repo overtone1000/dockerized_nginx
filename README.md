@@ -15,3 +15,6 @@ wget https://zlib.net/zlib-1.2.13.tar.gz
 
 To deploy, `bash build_and_push.sh TAG`
 Tags are nginx-alpine-VERSION and nginx-ubuntu-VERSION
+
+Todo
+- [ ] Remove custom build. The nginx container on docker does it better! Just go from that and add certbot.
