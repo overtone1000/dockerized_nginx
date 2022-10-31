@@ -2,7 +2,7 @@ version: '3.8'
 services:
 
   nginx:
-    image: overtone1000/nginx:alpine-1 #docker.io/overtone1000/nginx
+    image: overtone1000/nginx_certbot:alpine #docker.io/overtone1000/nginx
     networks:
       - bridge_net
     ports:
@@ -17,6 +17,7 @@ services:
       CERTBOT_WEBHOOK_PRE: "$CERTBOT_WEBHOOK_PRE" #webhook for certbot pre-renewal
       CERTBOT_WEBHOOK_POST: "$CERTBOT_WEBHOOK_POST" #webhook for certbot post-renewal
       HEALTHCHECK_URL: "$HEALTHCHECK_URL" #webhook for cron heartbeat
+      TZ: "US/Los_Angeles"
   
   php:
     image: php:fpm-alpine

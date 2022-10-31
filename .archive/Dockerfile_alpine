@@ -1,4 +1,60 @@
-FROM nginx:alpine
+FROM alpine:3 AS base
+
+FROM base AS build
+
+###
+### nginx
+###
+
+# Install necessary packages
+#see pkgs.alpinelinux.org
+RUN apk add --no-cache make
+RUN apk add --no-cache g++
+RUN apk add --no-cache perl
+RUN apk add --no-cache linux-headers
+
+#
+#
+#Install third party libraries (predownloaded)
+ARG OPENSSL=openssl-3.0.5
+ARG ZLIB=zlib-1.2.13
+ARG PCRE=pcre2-10.40
+ARG NGINX=nginx-1.23.2
+
+COPY downloads/ /tmp/
+
+#Unpack
+WORKDIR /tmp/
+RUN tar -zxf $OPENSSL.tar.gz
+RUN tar -zxf $ZLIB.tar.gz
+RUN tar -zxf $PCRE.tar.gz
+RUN tar -zxf $NGINX.tar.gz
+
+#Compile nginx
+WORKDIR /tmp/$NGINX
+RUN ./configure \
+--sbin-path=/etc/nginx/nginx \
+--conf-path=/etc/nginx/nginx.conf \
+--pid-path=/etc/nginx/nginx.pid \
+--with-pcre=../$PCRE \
+--with-zlib=../$ZLIB \
+--with-openssl=../$OPENSSL \
+--with-http_ssl_module \
+--with-stream \
+--with-stream_ssl_preread_module \
+--with-mail=dynamic
+RUN make
+RUN make install
+
+WORKDIR /
+
+#Cleanup
+RUN rm -fr /tmp/*
+#RUN apt-get remove -y make build-essential
+#RUN apt-get clean && rm -rf /var/lib/apt/lists/*;
+RUN apk del --no-cache make
+RUN apk del --no-cache g++
+RUN apk del --no-cache perl
 
 #
 #
@@ -10,13 +66,16 @@ RUN echo "Skipping rust compilation. This will cause failure if deploying to ARM
 #RUN rustc --version
 
 
+FROM base AS final
+COPY --from=build / /
+
 #Install PHP-FPM and create the pertinent socket link; service is started in entrypoint.sh
-#ENV PHP_VERSION=81 
-#ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
+ENV PHP_VERSION=81 
+ENV PHP_INI_DIR=/etc/php/$PHP_VERSION/cli/conf.d
 #was 7.4
 #did "8.1" for a bit, was that a fluke?
-#ENV PATH="/etc/nginx:${PATH}"
-#ENV TZ="US/Los_Angeles"
+ENV PATH="/etc/nginx:${PATH}"
+ENV TZ="US/Los_Angeles"
 
 ###
 ### Certbot
@@ -61,6 +120,7 @@ RUN apk add --no-cache wget
 
 #
 #Create log files
+RUN mkdir /var/log/nginx
 RUN touch /var/log/nginx/access.log
 RUN touch /var/log/nginx/error.log
 RUN touch /var/log/nginx/stream.log

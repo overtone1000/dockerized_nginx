@@ -4,7 +4,7 @@ set -e
 
 REGISTRY=docker.io
 UNAME=overtone1000
-IMAGE_NAME=nginx
+IMAGE_NAME=nginx_certbot
 TAG="$1"
 
 FULLTAG=$REGISTRY/$UNAME/$IMAGE_NAME:$TAG
