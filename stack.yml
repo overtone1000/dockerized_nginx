@@ -18,6 +18,10 @@ services:
       CERTBOT_WEBHOOK_POST: "$CERTBOT_WEBHOOK_POST" #webhook for certbot post-renewal
       HEALTHCHECK_URL: "$HEALTHCHECK_URL" #webhook for cron heartbeat
       TZ: "US/Los_Angeles"
+    logging:
+      driver: local
+      options:
+        max-size: 1m
   
   php:
     image: php:fpm-alpine
@@ -25,6 +29,10 @@ services:
       - static_content:/var/www/html/ #php has to be able to access the content? yes, confirmed
     networks:
       - bridge_net
+    logging:
+      driver: local
+      options:
+        max-size: 1m
 
 volumes:
   cron:
