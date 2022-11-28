@@ -88,6 +88,8 @@ RUN chmod -R 755 /etc/letsencrypt/renewal-hooks
 COPY ./cron/root $CRONDIR/root
 RUN chmod 0644 $CRONDIR/root
 
+#Send logs to stdout and stderr
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \ 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
 WORKDIR /
 COPY entrypoint.sh entrypoint.sh
