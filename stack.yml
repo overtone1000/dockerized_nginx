@@ -1,9 +1,8 @@
-version: '3.8'
 services:
 
   nginx:
     image: docker.io/overtone1000/nginx_certbot:alpine #docker.io/overtone1000/nginx
-    restart: true
+    restart: always
     networks:
       - bridge_net
     ports:
@@ -26,7 +25,7 @@ services:
   
   php:
     image: php:fpm-alpine
-    restart: true
+    restart: always
     volumes:
       - static_content:/var/www/html/ #php has to be able to access the content? yes, confirmed
     networks:
