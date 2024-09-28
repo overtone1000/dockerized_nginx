@@ -3,6 +3,7 @@ services:
 
   nginx:
     image: docker.io/overtone1000/nginx_certbot:alpine #docker.io/overtone1000/nginx
+    restart: true
     networks:
       - bridge_net
     ports:
@@ -19,12 +20,13 @@ services:
       HEALTHCHECK_URL: "$HEALTHCHECK_URL" #webhook for cron heartbeat
       TZ: "US/Los_Angeles"
     logging:
-      driver: local
+      driver: json-file
       options:
         max-size: 1m
   
   php:
     image: php:fpm-alpine
+    restart: true
     volumes:
       - static_content:/var/www/html/ #php has to be able to access the content? yes, confirmed
     networks:
@@ -50,4 +52,5 @@ networks:
   bridge_net:
     name: nginx_bridge #can't use the default bridge! DNS using container/service names doesn't work on that.
 #    driver: overlay
+    driver: bridge
     attachable: true #allow compose and plain docker containers to attach to this network
