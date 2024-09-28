@@ -2,7 +2,7 @@ version: '3.8'
 services:
 
   nginx:
-    image: overtone1000/nginx_certbot:alpine #docker.io/overtone1000/nginx
+    image: docker.io/overtone1000/nginx_certbot:alpine #docker.io/overtone1000/nginx
     networks:
       - bridge_net
     ports:
