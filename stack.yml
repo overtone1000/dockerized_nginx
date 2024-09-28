@@ -30,7 +30,7 @@ services:
     networks:
       - bridge_net
     logging:
-      driver: local
+      driver: json-file
       options:
         max-size: 1m
 
@@ -49,5 +49,5 @@ volumes:
 networks:
   bridge_net:
     name: nginx_bridge #can't use the default bridge! DNS using container/service names doesn't work on that.
-    driver: overlay
+#    driver: overlay
     attachable: true #allow compose and plain docker containers to attach to this network
