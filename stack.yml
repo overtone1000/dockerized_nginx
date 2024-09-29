@@ -2,6 +2,8 @@ services:
 
   nginx:
     image: docker.io/overtone1000/nginx_certbot:alpine #docker.io/overtone1000/nginx
+    depends_on:
+      - php
     restart: always
     networks:
       - bridge_net

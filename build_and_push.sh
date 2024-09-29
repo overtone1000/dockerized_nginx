@@ -11,7 +11,7 @@ FULLTAG=$REGISTRY/$UNAME/$IMAGE_NAME:$TAG
 
 if [ -z $TAG ]; then 
     echo "Please provide the tag as an argument."
-    exit -1
+    exit 1
 else
     echo "Pushing to $FULLTAG"
 fi
