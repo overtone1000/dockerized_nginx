@@ -38,8 +38,6 @@ services:
         max-size: 1m
 
 volumes:
-  cron:
-    name: nginx_trm_cron
   nginx:
     name: nginx_trm_nginxconfig
   static_content:
