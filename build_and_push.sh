@@ -16,10 +16,10 @@ else
     echo "Pushing to $FULLTAG"
 fi
 
-docker context use default
+#podman context use default
 
 #echo "Enter docker password for user $UNAME"
-#docker login -u $UNAME $REGISTRY
-docker build -t $IMAGE_NAME:$TAG ./build
-docker image tag $IMAGE_NAME:$TAG $FULLTAG
-docker push $FULLTAG
+#podman login docker.io
+podman build -t $IMAGE_NAME:$TAG ./build
+podman image tag $IMAGE_NAME:$TAG $FULLTAG
+podman push $FULLTAG
